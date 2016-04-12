@@ -1,0 +1,16 @@
+monolith:
+    image: nathejk/monolith
+    restart: always
+    ports:
+        - 8801:81
+        - 8802:82
+    environment:
+        DB_DSN: mysqli://nathejk:vabbes@172.17.42.1/nathejk2015
+
+tilmelding-bff:
+    image: nathejk/tilmelding-bff
+    restart: always
+    ports:
+        - 8803:80
+    environment:
+        PROXY_HOST: http://172.17.42.1:8802
