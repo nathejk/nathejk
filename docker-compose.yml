@@ -1,3 +1,5 @@
+# requires environmental variable DOCKERHOST
+
 monolith:
     image: nathejk/monolith
     restart: always
@@ -5,7 +7,15 @@ monolith:
         - 8801:81
         - 8802:82
     environment:
-        DB_DSN: mysqli://nathejk:vabbes@172.17.42.1/nathejk2015
+        DB_DSN: mysqli://nathejk:vabbes@${DOCKERHOST}/nathejk2015
+
+nats:
+    image: nats
+    restart: always
+    ports:
+        - 8222:8222
+        - 6222:6222
+        - 4222:4222
 
 tilmelding-bff:
     image: nathejk/tilmelding-bff
@@ -13,4 +23,12 @@ tilmelding-bff:
     ports:
         - 8803:80
     environment:
-        PROXY_HOST: http://172.17.42.1:8802
+        PROXY_HOST: http://${DOCKERHOST}:8802
+
+sms:
+    image: nathejk/sms
+    restart: always
+    environment:
+        MYSQL_DSN: mysql://un:pw@${DOCKERHOST}/db
+        NATS_DSN: nats://${DOCKERHOST}:4222
+
