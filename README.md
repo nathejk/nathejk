@@ -15,7 +15,7 @@ To develop on a service, clone as a sibling folder to the nathejk project and ty
 copy.
 
 ## Web
-[natpas admin system](http://monolith.dev.nathejk.dk:8801)
-[tilmelding](http://monolith.dev.nathejk.dk:8802)
-[webmail](http://mailcatcher.dev.nathejk.dk:88)
+- [natpas admin system](http://monolith.dev.nathejk.dk:8801) UN:nathejk PW:password
+- [tilmelding](http://monolith.dev.nathejk.dk:8802)
+- [webmail](http://mailcatcher.dev.nathejk.dk:88)
 
