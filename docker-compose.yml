@@ -1,34 +1,67 @@
-# requires environmental variable DOCKERHOST
+version: '2'
 
-monolith:
-    image: nathejk/monolith
-    restart: always
-    ports:
-        - 8801:81
-        - 8802:82
-    environment:
-        DB_DSN: mysqli://nathejk:vabbes@${DOCKERHOST}/nathejk2015
+services:
+    monolith:
+        image: nathejk/monolith
+        restart: always
+        ports:
+            - 8801:81
+            - 8802:82
+        environment:
+            DB_DSN: mysql://nathejk:kodeord@mysql/nathejk2016
+            MQ_HOST: nats
+            QR_GENERATOR_URL: http://qr-generator.dev.nathejk.dk
+            ADMIN_PASS: password
 
-nats:
-    image: nats
-    restart: always
-    ports:
-        - 8222:8222
-        - 6222:6222
-        - 4222:4222
+    proxy:
+        image: nathejk/proxy
+        restart: always
+        ports:
+            - 88:80
 
-tilmelding-bff:
-    image: nathejk/tilmelding-bff
-    restart: always
-    ports:
-        - 8803:80
-    environment:
-        PROXY_HOST: http://${DOCKERHOST}:8802
+    mysql:
+        image: mariadb:10.0
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: ib
+            TZ: Europe/Copenhagen
 
-sms:
-    image: nathejk/sms
-    restart: always
-    environment:
-        MYSQL_DSN: mysql://un:pw@${DOCKERHOST}/db
-        NATS_DSN: nats://${DOCKERHOST}:4222
+    nats:
+        image: nats
+        restart: always
 
+    tilmelding-bff:
+        image: nathejk/tilmelding-bff
+        restart: always
+        ports:
+            - 8803:80
+        environment:
+            PROXY_HOST: http://monolith:82
+
+    sms:
+        image: nathejk/sms
+        restart: always
+        environment:
+            DB_DSN: mysql://nathejk:kodeord@mysql/sms
+            MQ_DSN: nats://nats:4222
+            SMS_DSN: cpsms://UN:PW@localhost/sms
+
+    
+    qr-generator:
+        image: nathejk/qr-generator
+        restart: always
+
+    mail:
+        image: nathejk/mail
+        restart: always
+        environment:
+            DB_DSN: mysql://nathejk:kodeord@mysql/mail
+            MQ_DSN: nats://nats:4222
+            SMTP_DSN: smtp://mailcatcher:25
+
+    mailcatcher:
+        image: yappabe/mailcatcher
+        restart: always
+        environment:
+            HTTP_PORT: 80
+            SMTP_PORT: 25
