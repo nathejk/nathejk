@@ -3,7 +3,7 @@ NAME=nathejk
 space :=
 space +=
 
-configlist := $(strip docker-compose.yml $(shell ls ../*/docker-compose-dev.yml))
+configlist := $(strip docker-compose.yml $(shell ls ../*/docker-compose-dev.yml 2>/dev/null))
 config := -f $(subst $(space),$(space)-f$(space),$(configlist))
 project := --project $(NAME)
 dockercompose := docker-compose $(project) $(config)
