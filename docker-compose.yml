@@ -65,3 +65,9 @@ services:
         environment:
             HTTP_PORT: 80
             SMTP_PORT: 25
+
+    elk:
+        image: sebp/elk
+        restart: always
+        environment:
+            LOGSTASH_START: 0
