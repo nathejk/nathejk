@@ -3,6 +3,7 @@ version: '2'
 services:
     monolith:
         image: nathejk/monolith
+        hostname: monolith
         restart: always
         ports:
             - 8801:81
@@ -10,12 +11,16 @@ services:
         environment:
             DB_DSN: mysql://nathejk:kodeord@mysql/nathejk2016
             MQ_HOST: nats
-            QR_GENERATOR_URL: http://qr-generator.dev.nathejk.dk
+            QR_GENERATOR_URL: http://qr-generator.dev.nathejk.dk:88
             ADMIN_PASS: password
 
     proxy:
         image: nathejk/proxy
         restart: always
+        networks:
+            default:
+                aliases:
+                    - qr-generator.dev.nathejk.dk
         ports:
             - 88:80
 
@@ -25,6 +30,8 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: ib
             TZ: Europe/Copenhagen
+        ports:
+            - 3306:3306
 
     nats:
         image: nats
