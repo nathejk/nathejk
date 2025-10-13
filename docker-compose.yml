@@ -1,80 +1,55 @@
-version: '2'
+
+networks:
+  jetstream:
+    external: false
+    name: jetstream
+  traefik:
+    external: false
+    name: traefik
 
 services:
-    monolith:
-        image: nathejk/monolith
-        hostname: monolith
-        restart: always
-        ports:
-            - 8801:81
-            - 8802:82
-        environment:
-            DB_DSN: mysql://nathejk:kodeord@mysql/nathejk2016
-            MQ_HOST: nats
-            QR_GENERATOR_URL: http://qr-generator.dev.nathejk.dk:88
-            ADMIN_PASS: password
+  traefik:
+    image: traefik:v3.0
+    command: |
+      --api.insecure
+      --providers.docker
+      --entrypoints.web.address=:80
+      --entrypoints.websecure.address=:443
+    restart: unless-stopped
+    labels:
+      traefik.http.routers.traefik.rule: Host(`local.nathejk.dk`)
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+    networks:
+    - traefik
+    volumes:
+    - ./letsencrypt:/letsencrypt
+    - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+    - 127.0.0.1:80:80
+    - 127.0.0.1:443:443
 
-    proxy:
-        image: nathejk/proxy
-        restart: always
-        networks:
-            default:
-                aliases:
-                    - qr-generator.dev.nathejk.dk
-        ports:
-            - 88:80
+  jetstream:
+    image: nats:2.10-alpine
+    command: -js
+    volumes:
+    - ./jetstream:/tmp/nats
+    networks:
+    - jetstream
+    ports:
+    - 127.0.0.1:4222:4222
+    - 127.0.0.1:8222:8222
 
-    mysql:
-        image: mariadb:10.0
-        restart: always
-        environment:
-            MYSQL_ROOT_PASSWORD: ib
-            TZ: Europe/Copenhagen
-        ports:
-            - 3306:3306
+  nui:
+    image: ghcr.io/nats-nui/nui
+    volumes:
+    - ./nui:/db
+    networks:
+    - traefik
+    ports:
+    - 31311
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: traefik
+      traefik.http.routers.nui.rule: Host(`jetstream.local.nathejk.dk`)
+      traefik.http.services.nui.loadbalancer.server.port: 31311
 
-    nats:
-        image: nats
-        restart: always
-
-    tilmelding-bff:
-        image: nathejk/tilmelding-bff
-        restart: always
-        ports:
-            - 8803:80
-        environment:
-            PROXY_HOST: http://monolith:82
-
-    sms:
-        image: nathejk/sms
-        restart: always
-        environment:
-            DB_DSN: mysql://nathejk:kodeord@mysql/sms
-            MQ_DSN: nats://nats:4222
-            SMS_DSN: cpsms://UN:PW@localhost/sms
-
-    
-    qr-generator:
-        image: nathejk/qr-generator
-        restart: always
-
-    mail:
-        image: nathejk/mail
-        restart: always
-        environment:
-            DB_DSN: mysql://nathejk:kodeord@mysql/mail
-            MQ_DSN: nats://nats:4222
-            SMTP_DSN: smtp://mailcatcher:25
-
-    mailcatcher:
-        image: yappabe/mailcatcher
-        restart: always
-        environment:
-            HTTP_PORT: 80
-            SMTP_PORT: 25
-
-    elk:
-        image: sebp/elk
-        restart: always
-        environment:
-            LOGSTASH_START: 0

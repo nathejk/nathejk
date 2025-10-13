@@ -5,17 +5,14 @@ Herfra styres alle services
 ## Requirements
 - docker
 - docker-compose
-- make
 
-## Boot
-Clone the repo in an empty folder and type ```make``` this will boot the entire environment as specified in the
-docker-compose.yml.
+## Dev projekter
+- [HQ system](http://hq.local.nathejk.dk) UN:nathejk PW:password
+- [tilmelding](http://rilmelding.local.nathejk.dk)
 
-To develop on a service, clone as a sibling folder to the nathejk project and type ```make``` this will use the local
-copy.
 
-## Web
-- [natpas admin system](http://monolith.dev.nathejk.dk:8801) UN:nathejk PW:password
-- [tilmelding](http://monolith.dev.nathejk.dk:8802)
-- [webmail](http://mailcatcher.dev.nathejk.dk:88)
+## Links
+https://stackoverflow.com/questions/37120260/configure-docker-compose-override-to-ignore-hide-some-containers
+
+https://github.com/fergusstrange/embedded-postgres
 
