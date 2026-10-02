@@ -24,6 +24,17 @@ project container, so the script runs the official `nats-box` image on the broke
 replay it **from sequence zero on every boot**, which is the constraint that shapes
 everything below.
 
+### `PHOTO` — photographs and albums
+
+`PHOTO.>`, file storage, unlimited retention. Configured exactly like `TELEMETRY`.
+
+**Subject shapes:** `PHOTO.<year>.photo.<photoId>.<verb>` and `PHOTO.<year>.album.<albumId>.<verb>`,
+published by `hej`.
+
+**Why this is a separate stream and not `NATHEJK.>`.** Photo albums are far removed from the race
+itself, and `hej` is the only consumer. Keeping them in `NATHEJK` would drag every upload, tag and
+reorder past every other projector on every replay, for read models that never want them.
+
 ### `TELEMETRY` — high-volume measurements
 
 `TELEMETRY.>`, file storage, unlimited retention.
